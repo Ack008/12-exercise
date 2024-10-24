@@ -56,7 +56,6 @@ public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
 
     @Override
     public void closeQueueAndReallocate(Q queue) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'closeQueueAndReallocate'");
     }
 
