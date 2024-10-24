@@ -26,15 +26,19 @@ public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
         return copyToReturn;
     }
 
-    private void doesNotExistQueue(Q queue){
+    private void doesAlreadyExistQueue(Q queue){
         if(availableQueue.contains(queue)){
             throw new IllegalArgumentException();
         }
     }
-
+    private void doesNotExistQueue(Q queue){
+        if(!availableQueue.contains(queue)){
+            throw new IllegalArgumentException();
+        }
+    }
     @Override
     public void openNewQueue(Q queue) {
-        doesNotExistQueue(queue);
+        doesAlreadyExistQueue(queue);
         availableQueue.add(queue);
         queuesMap.put(queue, new LinkedList<T>());
     }
@@ -61,8 +65,9 @@ public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
 
     @Override
     public T dequeue(Q queue) {
+        doesNotExistQueue(queue);
         if(queuesMap.get(queue).isEmpty()){
-            throw new IllegalStateException();
+            return null;
         }
         var dequeuedElement = queuesMap.get(queue).get(0);
         queuesMap.get(queue).remove(0);
@@ -115,8 +120,11 @@ public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
          * Controllo la prima queue di quelle disponibili, se non è quella che sto riallocando
          * rialloco su quella, altrimenti prendo la successiva
          */
-        var finalQueue = availableQueue.iterator().next();
-        finalQueue = finalQueue != queue? finalQueue : availableQueue.iterator().next();
+        var availableQueueIterator = availableQueue.iterator();
+        Q finalQueue = availableQueueIterator.next();
+        while(queue.equals(finalQueue) && availableQueueIterator.hasNext()){
+            finalQueue = availableQueueIterator.next();
+        }
         for(var elem : dequeueAllFromQueue(queue)){
             queuesMap.get(finalQueue).add(elem);
         } 
