@@ -16,7 +16,6 @@ public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
         availableQueue = new HashSet<Q>();
     }
 
-    @Override
     public Set<Q> availableQueues() {
         /*Creation of availableQueues copy and returning it*/
         Set<Q> copyToReturn = new HashSet<Q>(); 
@@ -36,14 +35,13 @@ public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
             throw new IllegalArgumentException();
         }
     }
-    @Override
+
     public void openNewQueue(Q queue) {
         doesAlreadyExistQueue(queue);
         availableQueue.add(queue);
         queuesMap.put(queue, new LinkedList<T>());
     }
 
-    @Override
     public boolean isQueueEmpty(Q queue) {
         doesNotExistQueue(queue);
         return queuesMap.get(queue).isEmpty();
@@ -56,14 +54,11 @@ public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
         }
     }
 
-    @Override
     public void enqueue(T elem, Q queue) {
         doesElementExistInQueue(elem, queue);
         queuesMap.get(queue).add(elem);
     }
 
-
-    @Override
     public T dequeue(Q queue) {
         doesNotExistQueue(queue);
         if(queuesMap.get(queue).isEmpty()){
@@ -74,7 +69,6 @@ public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
         return dequeuedElement;
     }
 
-    @Override
     public Map<Q, T> dequeueOneFromAllQueues() {
         Map<Q,T> mapQueueElement = new HashMap<>();
         for(var queue : availableQueue){
@@ -87,7 +81,6 @@ public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
         return mapQueueElement;
     }
 
-    @Override
     public Set<T> allEnqueuedElements() {
         Set<T> enqueuedElements = new HashSet<>();
         for(var queue : availableQueue){
@@ -98,7 +91,6 @@ public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
         return enqueuedElements;
     }
 
-    @Override
     public List<T> dequeueAllFromQueue(Q queue) {
         doesNotExistQueue(queue);
         List<T> dequeuedElements = new LinkedList<>();
@@ -110,7 +102,6 @@ public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
         return dequeuedElements;
     }
 
-    @Override
     public void closeQueueAndReallocate(Q queue) {
         doesNotExistQueue(queue);
         if(availableQueue.size() == 1){
