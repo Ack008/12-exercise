@@ -9,57 +9,54 @@ import java.util.Set;
 
 public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
 
-    Map<Q,List<T>> queuesMap;
-    Set<Q> availableQueue;
+    private Map<Q,List<T>> queuesMap;
     MultiQueueImpl(){
         queuesMap = new HashMap<>();
-        availableQueue = new HashSet<Q>();
     }
 
     public Set<Q> availableQueues() {
         /*Creation of availableQueues copy and returning it*/
         Set<Q> copyToReturn = new HashSet<Q>(); 
-        for(var queue : availableQueue){
+        for(var queue : queuesMap.keySet()){
             copyToReturn.add(queue);
         }
         return copyToReturn;
     }
 
-    private void doesAlreadyExistQueue(Q queue){
-        if(availableQueue.contains(queue)){
+    private void doesAlreadyExistQueue(final Q queue){
+        if(queuesMap.keySet().contains(queue)){
             throw new IllegalArgumentException();
         }
     }
-    private void doesNotExistQueue(Q queue){
-        if(!availableQueue.contains(queue)){
+    private void doesNotExistQueue(final Q queue){
+        if(!queuesMap.keySet().contains(queue)){
             throw new IllegalArgumentException();
         }
     }
 
-    public void openNewQueue(Q queue) {
+    public void openNewQueue(final Q queue) {
         doesAlreadyExistQueue(queue);
-        availableQueue.add(queue);
         queuesMap.put(queue, new LinkedList<T>());
     }
 
-    public boolean isQueueEmpty(Q queue) {
+    public boolean isQueueEmpty(final Q queue) {
         doesNotExistQueue(queue);
         return queuesMap.get(queue).isEmpty();
     }
 
-    private void doesElementExistInQueue(T elem, Q queue) {
+    private void doesElementExistInQueue(final T elem, final Q queue) {
         doesNotExistQueue(queue);
         if(queuesMap.get(queue).contains(elem)){
             throw new IllegalArgumentException();
         }
     }
 
-    public void enqueue(T elem, Q queue) {
+    public void enqueue(final T elem, final Q queue) {
         doesElementExistInQueue(elem, queue);
         queuesMap.get(queue).add(elem);
     }
 
-    public T dequeue(Q queue) {
+    public T dequeue(final Q queue) {
         doesNotExistQueue(queue);
         if(queuesMap.get(queue).isEmpty()){
             return null;
@@ -71,7 +68,7 @@ public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
 
     public Map<Q, T> dequeueOneFromAllQueues() {
         Map<Q,T> mapQueueElement = new HashMap<>();
-        for(var queue : availableQueue){
+        for(var queue : queuesMap.keySet()){
             try{
                 mapQueueElement.put(queue, dequeue(queue));
             }catch (IllegalStateException e){
@@ -83,7 +80,7 @@ public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
 
     public Set<T> allEnqueuedElements() {
         Set<T> enqueuedElements = new HashSet<>();
-        for(var queue : availableQueue){
+        for(var queue : queuesMap.keySet()){
             for(var elem : queuesMap.get(queue)){
                 enqueuedElements.add(elem);
             }
@@ -91,7 +88,7 @@ public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
         return enqueuedElements;
     }
 
-    public List<T> dequeueAllFromQueue(Q queue) {
+    public List<T> dequeueAllFromQueue(final Q queue) {
         doesNotExistQueue(queue);
         List<T> dequeuedElements = new LinkedList<>();
         var queueIterator = queuesMap.get(queue).iterator(); 
@@ -102,16 +99,16 @@ public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
         return dequeuedElements;
     }
 
-    public void closeQueueAndReallocate(Q queue) {
+    public void closeQueueAndReallocate(final Q queue) {
         doesNotExistQueue(queue);
-        if(availableQueue.size() == 1){
+        if(queuesMap.keySet().size() == 1){
             throw new IllegalStateException();
         }
         /*
          * Controllo la prima queue di quelle disponibili, se non è quella che sto riallocando
          * rialloco su quella, altrimenti prendo la successiva
          */
-        var availableQueueIterator = availableQueue.iterator();
+        var availableQueueIterator = queuesMap.keySet().iterator();
         Q finalQueue = availableQueueIterator.next();
         while(queue.equals(finalQueue) && availableQueueIterator.hasNext()){
             finalQueue = availableQueueIterator.next();
@@ -120,7 +117,6 @@ public class MultiQueueImpl<T, Q> implements MultiQueue<T, Q>{
             queuesMap.get(finalQueue).add(elem);
         } 
         queuesMap.remove(queue);
-        availableQueue.remove(queue);
     }
 
 }
